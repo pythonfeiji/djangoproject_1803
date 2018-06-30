@@ -15,6 +15,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'user'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -55,7 +56,8 @@ DATABASES = {
         'NAME': 'dailyfresh',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '192.168.12.78',
+        # 'HOST': '192.168.12.78',
+        'HOST': '192.168.10.109',
         'PORT': '3306',
     }
 }
@@ -74,3 +76,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
+
+# django认证系统使用的模型类
+AUTH_USER_MODEL='user.User'
