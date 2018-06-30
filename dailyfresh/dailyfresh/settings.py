@@ -80,3 +80,11 @@ STATICFILES_DIRS=[
 
 # django认证系统使用的模型类
 AUTH_USER_MODEL='user.User'
+
+#发送邮件
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.126.com'#SMTP服务器
+EMAIL_PORT = 25#端口号
+EMAIL_HOST_USER = 'python_wangzha@126.com'#发送邮件的邮箱
+EMAIL_HOST_PASSWORD = 'python1803'#在邮箱中设置的客户端授权密码
+EMAIL_FROM = '天天生鲜<python_wangzha@126.com>'#收件人看到的发件人
