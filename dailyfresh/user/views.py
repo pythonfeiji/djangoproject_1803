@@ -2,15 +2,17 @@ import re
 from django.shortcuts import render
 from django.shortcuts import render,redirect
 from django.core.urlresolvers import reverse
+from django.views.generic import View
 from user.models import *
 
-def register(request):
+class RegisterView(View):
     '''注册'''
-    if request.method == 'GET':
-        # 显示注册页面
+    def get(self, request):
+        '''显示注册页面'''
         return render(request, 'register.html')
-    else:
-        # 进行注册处理
+
+    def post(self, request):
+        '''进行注册处理'''
         # 接收数据
         username = request.POST.get('user_name')
         password = request.POST.get('pwd')
