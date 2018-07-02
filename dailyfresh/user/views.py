@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import View
 from user.models import *
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired,BadSignature
 from dailyfresh import settings
 from django.http import HttpResponse
 from django.core.mail import send_mail
@@ -66,7 +66,7 @@ class RegisterView(View):
         message = ''#文本内容
         sender = settings.EMAIL_FROM#发件人
         receiver = [email]#收件人
-        html_message = '<h1>%s, 欢迎您成为天天生鲜注册会员</h1>请点击下面链接激活您的账户<br/><a href="http://192.168.10.109:8888/user/active/%s">http://192.168.10.109:8888/user/active/%s</a>' % (
+        html_message = '<h1>%s, 欢迎您成为天天生鲜注册会员</h1>请点击下面链接激活您的账户<br/><a href="http://192.168.12.42:8888/user/active/%s">http://192.168.12.42:8888/user/active/%s</a>' % (
         username, token, token)#html内容
 
         send_mail(subject, message, sender, receiver, html_message=html_message)
@@ -74,6 +74,8 @@ class RegisterView(View):
 
         # 返回应答, 跳转到首页
         return redirect(reverse('goods:index'))
+        # return redirect('/index')
+
 
 
 class ActiveView(View):
@@ -98,6 +100,9 @@ class ActiveView(View):
         except SignatureExpired as e:
             # 激活链接已过期
             return HttpResponse('激活链接已过期')
+        except BadSignature as e:
+            # 激活链接被修改
+            return HttpResponse('激活链接非法')
 
 
 class LoginView(View):

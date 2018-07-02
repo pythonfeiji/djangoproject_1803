@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractUser
 from db.base_model import BaseModel
 
 
+
+'''
+继承AbstractUser：用他的属性
+继承BaseModel：共有的属性
+'''
 class User(AbstractUser, BaseModel):
     '''用户模型类'''
 
