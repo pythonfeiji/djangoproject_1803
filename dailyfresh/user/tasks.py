@@ -9,7 +9,7 @@ import time
 # 发邮件
 @task
 def task_register_send_email(uid, username, email):
-    time.sleep(10)
+    # time.sleep(10)
     '''
         发送激活邮件，包含激活链接: http://ip:port/user/active/3
         激活链接中需要包含用户的身份信息, 并且要把身份信息进行加密

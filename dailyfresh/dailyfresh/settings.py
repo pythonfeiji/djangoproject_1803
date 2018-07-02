@@ -1,5 +1,7 @@
 import os
 
+HOST_IP = '192.168.12.42'
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = '*5-v-)2@+c#&x#4$izh)y_11jyqvp=ct_5$#qtlm@74fbi&q%b'
@@ -58,8 +60,7 @@ DATABASES = {
         'NAME': 'dailyfresh',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '192.168.12.42',
-        # 'HOST': '192.168.10.109',
+        'HOST': HOST_IP,
         'PORT': '3306',
     }
 }
@@ -94,7 +95,15 @@ EMAIL_FROM = '天天生鲜<python_wangzha@126.com>'#收件人看到的发件人
 # django-celery异步任务
 import djcelery
 djcelery.setup_loader()
-BROKER_URL = 'redis://192.168.12.42:6379/8'
+BROKER_URL = 'redis://%s:6379/8'%HOST_IP
 CELERY_IMPORTS = [
     'user.tasks',
 ]
+
+#将session缓存到redis中
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = HOST_IP
+SESSION_REDIS_PORT = 6379
+SESSION_REDIS_DB = 1
+SESSION_REDIS_PASSWORD = ''
+SESSION_REDIS_PREFIX = 'session'
