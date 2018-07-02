@@ -17,6 +17,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'user',
     'goods',
+    'djcelery',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -88,3 +89,12 @@ EMAIL_PORT = 25#端口号
 EMAIL_HOST_USER = 'python_wangzha@126.com'#发送邮件的邮箱
 EMAIL_HOST_PASSWORD = 'python1803'#在邮箱中设置的客户端授权密码
 EMAIL_FROM = '天天生鲜<python_wangzha@126.com>'#收件人看到的发件人
+
+
+# django-celery异步任务
+import djcelery
+djcelery.setup_loader()
+BROKER_URL = 'redis://192.168.12.42:6379/8'
+CELERY_IMPORTS = [
+    'user.tasks',
+]
