@@ -160,6 +160,7 @@ class LogoutView(View):
     def get(self, request):
         '''退出登录'''
         # 清除用户的session信息
+        request.session.flush()
         logout(request)
 
         # 跳转到首页
@@ -170,7 +171,17 @@ class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
 
     def get(self, request):
-        context = {'page': '1'}
+        user = request.user
+        try:
+            address = Address.objects.get(user=user, is_default=True) # models.Manager
+        except Address.DoesNotExist:
+            # 不存在默认收货地址
+            address = None
+
+        context = {
+            'page': '1',
+            'address':address
+        }
         return render(request, 'user_center_info.html', context)
 
 
@@ -186,7 +197,65 @@ class UserAddressView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
 
     def get(self, request):
-        context = {'page': '3'}
+        '''显示'''
+        # 获取登录用户对应User对象
+        user = request.user
+
+        # 获取用户的默认收货地址
+        try:
+            address = Address.objects.get(user=user, is_default=True) # models.Manager
+        except Address.DoesNotExist:
+            # 不存在默认收货地址
+            address = None
+
+        #数据字典
+        context = {
+            'page': '3',
+            'address':address
+        }
+
+        #渲染
         return render(request, 'user_center_site.html', context)
+
+    def post(self, request):
+        '''地址的添加'''
+        # 接收数据
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        # 校验数据
+        if not all([receiver, addr, phone]):
+            return render(request, 'user_center_site.html', {'errmsg': '数据不完整'})
+
+        # 校验手机号
+        if not re.match(r'^1[3|4|5|7|8][0-9]{9}$', phone):
+            return render(request, 'user_center_site.html', {'errmsg': '手机格式不正确'})
+
+        # 业务处理：地址添加
+        # 用户新添加的地址作为默认收货地址，如果原来有默认地址，要取消
+        # 获取用户的默认收货地址
+
+        # 获取登录用户对应User对象
+        user = request.user
+        try:
+            address = Address.objects.get(user=user, is_default=True)
+            address.is_default=False
+            address.save()
+        except Address.DoesNotExist:
+            # 不存在默认收货地址
+            pass
+
+        # 添加地址
+        Address.objects.create(user=user,
+                               receiver=receiver,
+                               addr=addr,
+                               zip_code=zip_code,
+                               phone=phone,
+                               is_default=True)
+
+        # 返回应答,刷新地址页面
+        return redirect(reverse('user:address'))  # get请求方式
 
 
