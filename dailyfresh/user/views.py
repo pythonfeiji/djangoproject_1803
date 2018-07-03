@@ -4,13 +4,14 @@ from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse
 from django.views.generic import View
 from user.models import *
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired,BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 from dailyfresh import settings
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from user import tasks
 from django.contrib.auth import authenticate, login
 from utils.mixin_util import LoginRequiredMixin
+
 
 class RegisterView(View):
     '''注册'''
@@ -55,15 +56,12 @@ class RegisterView(View):
         user.is_active = 0
         user.save()
 
-
-        #celery异步调用任务
-        tasks.task_register_send_email.delay(user.id,username,email)
-
+        # celery异步调用任务
+        tasks.task_register_send_email.delay(user.id, username, email)
 
         # 返回应答, 跳转到首页
         return redirect(reverse('goods:index'))
         # return redirect('/index')
-
 
 
 class ActiveView(View):
@@ -95,6 +93,7 @@ class ActiveView(View):
 
 class LoginView(View):
     '''登录'''
+
     def get(self, request):
         '''显示登录页面'''
         # 判断是否记住了用户名
@@ -106,7 +105,7 @@ class LoginView(View):
             checked = ''
 
         # 使用模板
-        return render(request, 'login.html', {'username':username, 'checked':checked})
+        return render(request, 'login.html', {'username': username, 'checked': checked})
 
     def post(self, request):
         '''登录校验'''
@@ -116,12 +115,12 @@ class LoginView(View):
 
         # 校验数据
         if not all([username, password]):
-            return render(request, 'login.html', {'errmsg':'数据不完整'})
+            return render(request, 'login.html', {'errmsg': '数据不完整'})
 
         # 业务处理:登录校验
         user = authenticate(username=username, password=password)
 
-        print('user',user)
+        print('user', user)
 
         if user != None:
             # 用户名密码正确
@@ -137,13 +136,12 @@ class LoginView(View):
                 # 跳转到next_url
                 response = redirect(next_url)  # HttpResponseRedirect
 
-
                 # 判断是否需要记住用户名
                 remember = request.POST.get('remember')
 
                 if remember == 'on':
                     # 记住用户名
-                    response.set_cookie('username', username, max_age=7*24*3600)
+                    response.set_cookie('username', username, max_age=7 * 24 * 3600)
                 else:
                     response.delete_cookie('username')
 
@@ -151,26 +149,32 @@ class LoginView(View):
                 return response
             else:
                 # 用户未激活
-                return render(request, 'login.html', {'errmsg':'账户未激活'})
+                return render(request, 'login.html', {'errmsg': '账户未激活'})
         else:
             # 用户名或密码错误
-            return render(request, 'login.html', {'errmsg':'用户名或密码错误'})
+            return render(request, 'login.html', {'errmsg': '用户名或密码错误'})
 
-#views.UserInfoView.as_view()
-class UserInfoView(LoginRequiredMixin,View):
+
+# views.UserInfoView.as_view()
+class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
+
     def get(self, request):
         context = {'page': '1'}
         return render(request, 'user_center_info.html', context)
 
-class UserOrderView(LoginRequiredMixin,View):
+
+class UserOrderView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
+
     def get(self, request):
         context = {'page': '2'}
         return render(request, 'user_center_order.html', context)
 
-class UserAddressView(LoginRequiredMixin,View):
+
+class UserAddressView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
+
     def get(self, request):
         context = {'page': '3'}
         return render(request, 'user_center_site.html', context)
