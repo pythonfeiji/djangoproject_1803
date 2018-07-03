@@ -1,4 +1,5 @@
 import os
+from django.core.urlresolvers import reverse
 
 HOST_IP = '192.168.12.42'
 
@@ -80,8 +81,11 @@ STATICFILES_DIRS=[
     os.path.join(BASE_DIR,'static')
 ]
 
-# django认证系统使用的模型类
+# django用户认证系统使用的模型类
 AUTH_USER_MODEL='user.User'
+
+#django用户认证系统登录的url
+LOGIN_URL = '/user/login'
 
 #发送邮件
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -107,3 +111,5 @@ SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 1
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
+
+
