@@ -9,7 +9,7 @@ from dailyfresh import settings
 from django.http import HttpResponse
 from django.core.mail import send_mail
 from user import tasks
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from utils.mixin_util import LoginRequiredMixin
 
 
@@ -154,6 +154,16 @@ class LoginView(View):
             # 用户名或密码错误
             return render(request, 'login.html', {'errmsg': '用户名或密码错误'})
 
+class LogoutView(View):
+    '''退出登录'''
+
+    def get(self, request):
+        '''退出登录'''
+        # 清除用户的session信息
+        logout(request)
+
+        # 跳转到首页
+        return redirect(reverse('goods:index'))
 
 # views.UserInfoView.as_view()
 class UserInfoView(LoginRequiredMixin, View):
@@ -178,3 +188,5 @@ class UserAddressView(LoginRequiredMixin, View):
     def get(self, request):
         context = {'page': '3'}
         return render(request, 'user_center_site.html', context)
+
+
