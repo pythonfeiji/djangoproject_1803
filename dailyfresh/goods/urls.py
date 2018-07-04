@@ -3,4 +3,5 @@ from goods import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'), # 首页
+
 ]

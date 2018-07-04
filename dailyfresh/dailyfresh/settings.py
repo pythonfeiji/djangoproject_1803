@@ -21,6 +21,7 @@ INSTALLED_APPS = (
     'user',
     'goods',
     'djcelery',
+    'tinymce',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -111,5 +112,14 @@ SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 1
 SESSION_REDIS_PASSWORD = ''
 SESSION_REDIS_PREFIX = 'session'
+
+
+#tinymce默认样式配置
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': 'advanced',
+    'width': 600,
+    'height': 400,
+}
+
 
 
