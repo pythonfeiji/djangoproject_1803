@@ -171,16 +171,8 @@ class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
 
     def get(self, request):
-        user = request.user
-        try:
-            address = Address.objects.get(user=user, is_default=True) # models.Manager
-        except Address.DoesNotExist:
-            # 不存在默认收货地址
-            address = None
-
         context = {
-            'page': '1',
-            'address':address
+            'page': '1'
         }
         return render(request, 'user_center_info.html', context)
 
