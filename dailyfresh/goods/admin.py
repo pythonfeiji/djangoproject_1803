@@ -4,3 +4,4 @@ from goods.models import *
 # Register your models here.
 admin.site.register(Goods)
 admin.site.register(GoodsSKU)
+admin.site.register(GoodsType)
