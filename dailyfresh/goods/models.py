@@ -1,6 +1,7 @@
 from django.db import models
 from db.base_model import BaseModel
 from tinymce.models import HTMLField   #pip install django-tinymce==2.4.0
+import random
 
 
 class GoodsType(BaseModel):
@@ -27,9 +28,9 @@ class GoodsSKU(BaseModel):
     type = models.ForeignKey('GoodsType', verbose_name='商品种类')
     goods = models.ForeignKey('Goods', verbose_name='商品SPU')
     name = models.CharField(max_length=20, verbose_name='商品名称')
-    desc = models.CharField(max_length=256, verbose_name='商品简介')
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格')
-    unite = models.CharField(max_length=20, verbose_name='商品单位')
+    desc = models.CharField(max_length=256, verbose_name='商品简介',default='商品简介...')
+    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='商品价格',default=20)
+    unite = models.CharField(max_length=20, verbose_name='商品单位',default='kg')
     image = models.ImageField(upload_to='goods', verbose_name='商品图片')
     stock = models.IntegerField(default=1, verbose_name='商品库存')
     sales = models.IntegerField(default=0, verbose_name='商品销量')
@@ -39,6 +40,9 @@ class GoodsSKU(BaseModel):
         db_table = 'df_goods_sku'
         verbose_name = '商品'
         verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.name
 
 
 class Goods(BaseModel):
@@ -54,6 +58,8 @@ class Goods(BaseModel):
         verbose_name = '商品SPU'
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.name
 
 class GoodsImage(BaseModel):
     '''商品图片模型类'''
@@ -95,11 +101,15 @@ class IndexTypeGoodsBanner(BaseModel):
         verbose_name = "主页分类展示商品"
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.type.name
+
 
 class IndexPromotionBanner(BaseModel):
     '''首页促销活动模型类'''
     name = models.CharField(max_length=20, verbose_name='活动名称')
-    url = models.URLField(verbose_name='活动链接')
+    # url = models.URLField(verbose_name='活动链接')
+    url = models.CharField(max_length=256,verbose_name='活动链接')
     image = models.ImageField(upload_to='banner', verbose_name='活动图片')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')
 
