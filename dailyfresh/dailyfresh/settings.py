@@ -140,3 +140,7 @@ CACHES = {
         'TIMEOUT': 3600,
     },
 }
+
+# 连接redis的对象
+from redis import StrictRedis
+REDIS_CONN = StrictRedis(HOST_IP)

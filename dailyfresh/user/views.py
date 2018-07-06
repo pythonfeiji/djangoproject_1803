@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from user import tasks
 from django.contrib.auth import authenticate, login,logout
 from utils.mixin_util import LoginRequiredMixin
-
+from goods.models import *
 
 class RegisterView(View):
     '''注册'''
@@ -171,8 +171,25 @@ class UserInfoView(LoginRequiredMixin, View):
     '''用户中心-信息页'''
 
     def get(self, request):
+        # 获取用户的历史浏览记录
+        user = request.user
+
+        con = settings.REDIS_CONN
+
+        history_key = 'history_%d' % user.id
+
+        # 获取用户最新浏览的5个商品的id
+        sku_ids = con.lrange(history_key, 0, 4)  # [2,3,1]
+
+        # 遍历获取用户浏览的商品信息
+        goods_li = []
+        for id in sku_ids:
+            goods = GoodsSKU.objects.get(id=id)
+            goods_li.append(goods)
+
         context = {
-            'page': '1'
+            'page': '1',
+            'goods_li':goods_li
         }
         return render(request, 'user_center_info.html', context)
 
