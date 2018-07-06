@@ -131,3 +131,12 @@ FDFS_URL = 'http://%s:9999/'%HOST_IP
 
 
 
+
+# Django的缓存配置  pip install django-redis-cache
+CACHES = {
+    "default": {
+        "BACKEND": "redis_cache.cache.RedisCache",
+        "LOCATION": "redis://192.168.12.42:6379/9",
+        'TIMEOUT': 3600,
+    },
+}

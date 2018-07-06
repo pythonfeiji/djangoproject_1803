@@ -33,6 +33,8 @@
                 <ul>
                     {% for sku in same_spu_skus %}
                         <li><a href="{% url 'goods:detail' sku.id %}">{{ sku.name }}</a></li>
+                        {% empty %}
+                        <li>无</li>
                     {% endfor %}
                 </ul>
             </div>

@@ -25,7 +25,7 @@ class FDFSStorage(Storage):
         # 上传文件到fast dfs系统中
         res = client.upload_by_buffer(content.read())
 
-        print('res',res)
+        # print('res',res)
 
         # {
         #     'Remote file_id': b'group1/M00/00/00/wKgMKls9mCOAVe2sAABHr3RQqFs5810915',
