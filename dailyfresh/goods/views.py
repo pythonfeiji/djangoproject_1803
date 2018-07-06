@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import View
 from goods.models import *
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 
 
 class IndexView(View):
@@ -39,3 +41,38 @@ class IndexView(View):
 
         # 使用模板
         return render(request, 'index.html', context)
+
+
+class DetailView(View):
+    '''详情页'''
+    def get(self, request, goods_id):
+        '''显示详情页'''
+        try:
+            sku = GoodsSKU.objects.get(id=goods_id)
+        except GoodsSKU.DoesNotExist:
+            # 商品不存在
+            return redirect(reverse('goods:index'))
+
+        # 获取商品的分类信息
+        types = GoodsType.objects.all()
+
+        # 获取商品的评论信息,后期扩展
+
+        # 获取新品信息
+        new_skus = GoodsSKU.objects.filter(type=sku.type).order_by('-create_time')[:2]
+
+        # 获取同一个SPU的其他规格商品,后期扩展
+
+        # 获取用户购物车中商品的数目
+        cart_count = 0
+
+        # 组织模板上下文
+        context = {
+            'sku':sku,
+            'types':types,
+            'new_skus':new_skus,
+            'cart_count':cart_count
+        }
+
+        # 使用模板
+        return render(request, 'detail.html', context)

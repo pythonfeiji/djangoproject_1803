@@ -21,3 +21,12 @@
 
 新西兰奇异果
 https://item.jd.com/4635058.html
+
+
+
+启动服务
+sudo /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf
+sudo /usr/bin/fdfs_storaged /etc/fdfs/storage.conf
+sudo /usr/local/nginx/sbin/nginx
+sudo redis-server /etc/redis/redis.conf
+python manage.py runserver 192.168.12.42:8888
