@@ -195,3 +195,11 @@ class ListView(View):
 
         # 使用模板
         return render(request, 'list.html', context)
+
+        # context={
+        #     'query':'龙虾',
+        #     'page':page,
+        #     'paginator':paginator
+        #
+        # }
+        # return render(request, 'search/search.html', context)

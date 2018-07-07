@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^user/', include('user.urls', namespace='user')),     # 用户模块
     url(r'^tinymce/', include('tinymce.urls')),                 #tinymce
     url(r'^', include('goods.urls', namespace='goods')),        # 商品模块
+    url(r'^search/', include('haystack.urls')),                 # haystack
 ]
