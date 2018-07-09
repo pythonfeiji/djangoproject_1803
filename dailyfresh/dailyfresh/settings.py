@@ -22,6 +22,7 @@ INSTALLED_APPS = (
     'djcelery',
     'tinymce',
     'haystack',
+    'cart'
 )
 
 MIDDLEWARE_CLASSES = (

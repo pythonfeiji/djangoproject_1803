@@ -18,6 +18,22 @@
     3、先存cookie,登录后，将cookie发送给服务器，存储到redis
 
 
+4、购物车
+
+mysql
+
+id
+user_id
+goods_id
+goods_num
+
+redis
+
+选择hash
+比如 cart_用户id 商品的id 购买数量 商品的id 购买数量 商品的id 购买数量
+
+
+
 
 
 
