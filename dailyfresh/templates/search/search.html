@@ -41,3 +41,17 @@
 			</div>
 	</div>
 {% endblock main_content %}
+{% load staticfiles %}
+{% block bottomfiles %}
+    <script type="text/javascript" src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            $.get(
+                '{% url 'cart:count' %}',
+                function(data){
+                    $('#show_count').text(data.total_count)
+                }
+            )
+        })
+    </script>
+{% endblock%}

@@ -7,6 +7,7 @@ from django.core.cache import cache
 from redis import StrictRedis
 from django.conf import settings
 from django.core.paginator import Paginator
+from cart.views import *
 
 class IndexView(View):
     '''首页'''
@@ -50,7 +51,7 @@ class IndexView(View):
             cache.set('cache_index_page_data', context, 3600)
 
         # 获取用户购物车中商品的数目,暂时设置为0,待完善
-        cart_count = 0
+        cart_count = get_cart_count(request.user)
 
         # 组织模板上下文
         context.update(cart_count=cart_count)
@@ -81,11 +82,11 @@ class DetailView(View):
         same_spu_skus = GoodsSKU.objects.filter(goods=sku.goods).exclude(id=goods_id)
 
         # 获取用户购物车中商品的数目
-        cart_count = 0
+        user = request.user
+        cart_count = get_cart_count(user)
 
 
         # 如果用户已登录
-        user = request.user
         if user.is_authenticated():
             # 添加用户的历史记录
             conn = settings.REDIS_CONN
@@ -180,7 +181,7 @@ class ListView(View):
         new_skus = GoodsSKU.objects.filter(type=type).order_by('-create_time')[:2]
 
         # 获取用户购物车中商品的数目
-        cart_count = 0
+        cart_count = get_cart_count(request.user)
 
         # 组织模板上下文
         context = {
