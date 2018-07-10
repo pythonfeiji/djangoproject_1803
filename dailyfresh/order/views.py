@@ -9,6 +9,7 @@ from goods.models import *
 from user.models import *
 from order.models import *
 from django.http import JsonResponse
+from django.db import transaction
 
 
 class OrderPlaceView(LoginRequiredMixin, View):
@@ -79,6 +80,7 @@ class OrderPlaceView(LoginRequiredMixin, View):
 class OrderCommitView(View):
     '''订单创建'''
 
+    @transaction.atomic
     def post(self, request):
         '''订单创建'''
         # 判断用户是否登录
@@ -127,6 +129,10 @@ class OrderCommitView(View):
         total_price = 0
 
         try:
+
+            #设置事务保存点
+            save_point = transaction.savepoint()
+
             # todo: 向df_order_info表中添加一条记录
             order = OrderInfo.objects.create(
                 order_id=order_id,
@@ -138,25 +144,37 @@ class OrderCommitView(View):
                 transit_price=transit_price
             )
 
+            #模拟异常
+            # num = 1/0
+
+
             # todo: 用户的订单中有几个商品，需要向df_order_goods表中加入几条记录
             conn = settings.REDIS_CONN
             cart_key = 'cart_%d' % user.id
 
             sku_ids = sku_ids.split(',')
             for sku_id in sku_ids:
+
+                # import time
+                # time.sleep(10)
+
+
                 # 获取商品的信息
                 try:
                     sku = GoodsSKU.objects.get(id=sku_id)
                 except:
+                    #回滚
+                    transaction.savepoint_rollback(save_point)
                     # 商品不存在
                     return JsonResponse({'res': 4, 'errmsg': '商品不存在'})
-
 
                 # 从redis中获取用户所要购买的商品的数量
                 count = conn.hget(cart_key, sku_id)
 
                 # todo: 判断商品的库存
                 if int(count) > sku.stock:
+                    # 回滚
+                    transaction.savepoint_rollback(save_point)
                     return JsonResponse({'res': 6, 'errmsg': '商品库存不足'})
 
                 # todo: 向df_order_goods表中添加一条记录
@@ -181,7 +199,13 @@ class OrderCommitView(View):
             order.total_count = total_count
             order.total_price = total_price
             order.save()
+
+            #提交
+            transaction.savepoint_commit(save_point)
         except Exception as e:
+            # 回滚
+            transaction.savepoint_rollback(save_point)
+            print('1...')
             return JsonResponse({'res': 7, 'errmsg': '下单失败'})
 
         # todo: 清除用户购物车中对应的记录
