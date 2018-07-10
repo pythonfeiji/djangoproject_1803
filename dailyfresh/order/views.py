@@ -147,7 +147,6 @@ class OrderCommitView(View):
             #模拟异常
             # num = 1/0
 
-
             # todo: 用户的订单中有几个商品，需要向df_order_goods表中加入几条记录
             conn = settings.REDIS_CONN
             cart_key = 'cart_%d' % user.id
@@ -155,13 +154,17 @@ class OrderCommitView(View):
             sku_ids = sku_ids.split(',')
             for sku_id in sku_ids:
 
-                # import time
-                # time.sleep(10)
-
-
                 # 获取商品的信息
                 try:
-                    sku = GoodsSKU.objects.get(id=sku_id)
+                    # sku = GoodsSKU.objects.get(id=sku_id)
+                    #悲观锁的实现
+                    sku = GoodsSKU.objects.select_for_update().get(id=sku_id)
+
+                    print('用户%s成功获取锁...'%user.id)
+                    import time
+                    time.sleep(10)
+
+
                 except:
                     #回滚
                     transaction.savepoint_rollback(save_point)
