@@ -49,7 +49,7 @@ class OrderPlaceView(LoginRequiredMixin, View):
             total_price += amount
 
         # 运费:实际开发的时候，属于一个子系统
-        transit_price = 10  # 写死，随意设置
+        transit_price = 10  # 写死，后期要通过物流系统传递过来
 
         # 实付款
         total_pay = total_price + transit_price
