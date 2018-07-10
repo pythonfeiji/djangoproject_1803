@@ -67,7 +67,7 @@
 
     <div class="order_submit clearfix">
         {% csrf_token %}
-        <a href="javascript:;" sku_ids={{ sku_ids }} id="order_btn">提交订单</a>
+        <a href="" sku_ids={{ sku_ids }} id="order_btn">提交订单</a>
     </div>
 {% endblock body %}
 {% block bottom %}
@@ -97,26 +97,18 @@
                 'csrfmiddlewaretoken': csrf
             }
             // 发起ajax post请求，访问/order/commit, 传递的参数: addr_id pay_method, sku_ids
-            $.post('/order/commit', params, function (data) {
+            $.post('{% url 'order:commit' %}', params, function (data) {
                 if (data.res == 5) {
                     // 创建成功
-                    localStorage.setItem('order_finish', 2);
-                    $('.popup_con').fadeIn('fast', function () {
-
-                        setTimeout(function () {
-                            $('.popup_con').fadeOut('fast', function () {
-                                window.location.href = '/user/order/1';
-                            });
-                        }, 3000)
-
-                    });
+                    alert(data.message)
                 }
                 else {
+                    // 创建失败
                     alert(data.errmsg)
                 }
             })
-
-
+            // a标签不跳转
+            return false
         });
     </script>
 {% endblock bottomfiles %}
