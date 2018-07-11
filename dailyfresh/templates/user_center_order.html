@@ -89,6 +89,18 @@
                     if (data.res == 3) {
                         // 引导用户到支付页面
                         window.open(data.pay_url)
+
+                        //异步请求，查询状态
+                        $.post('/order/check', params, function (data){
+                        if (data.res == 3){
+                            alert('支付成功')
+                            // 刷新页面
+                            location.reload()
+                        }
+                        else{
+                            alert(data.errmsg)
+                        }
+                    })
                     }
                     else {
                         alert(data.errmsg)

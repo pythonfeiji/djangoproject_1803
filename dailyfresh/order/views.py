@@ -273,7 +273,7 @@ class OrderCommitView(View):
 
         try:
 
-            #设置事务保存点
+            # 设置事务保存点
             save_point = transaction.savepoint()
 
             # todo: 向df_order_info表中添加一条记录
@@ -287,7 +287,7 @@ class OrderCommitView(View):
                 transit_price=transit_price
             )
 
-            #模拟异常
+            # 模拟异常
             # num = 1/0
 
             # todo: 用户的订单中有几个商品，需要向df_order_goods表中加入几条记录
@@ -301,7 +301,7 @@ class OrderCommitView(View):
                     try:
                         sku = GoodsSKU.objects.get(id=sku_id)
                     except:
-                        #回滚
+                        # 回滚
                         transaction.savepoint_rollback(save_point)
                         # 商品不存在
                         return JsonResponse({'res': 4, 'errmsg': '商品不存在'})
@@ -328,11 +328,10 @@ class OrderCommitView(View):
                     # 返回受影响的行数   update   xxx  where xxxx
                     res = GoodsSKU.objects.filter(id=sku_id, stock=orgin_stock).update(stock=new_stock, sales=new_sales)
                     if res == 0:
-                        if i==2:
+                        if i == 2:
                             transaction.savepoint_rollback(save_point)
                             return JsonResponse({'res': 7, 'errmsg': '下单失败,并发'})
                         continue
-
 
                     # todo: 向df_order_goods表中添加一条记录
                     OrderGoods.objects.create(
@@ -359,7 +358,7 @@ class OrderCommitView(View):
             order.total_price = total_price
             order.save()
 
-            #提交
+            # 提交
             transaction.savepoint_commit(save_point)
         except Exception as e:
             # 回滚
@@ -391,7 +390,7 @@ class OrderPayView(View):
             return JsonResponse({'res': 1, 'errmsg': '无效的订单id'})
 
         try:
-            print('order_id:%s'%order_id)
+            print('order_id:%s' % order_id)
             order = OrderInfo.objects.get(order_id=order_id,
                                           user=user,
                                           pay_method=3,
@@ -413,16 +412,14 @@ class OrderPayView(View):
             app_private_key_path=app_private_key_string,
             alipay_public_key_path=alipay_public_key_string,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
             sign_type="RSA2",  # RSA 或者 RSA2
-            debug = True  # 默认False
+            debug=True  # 默认False
         )
 
-
-
         # 调用支付接口
-        subject = "天天生鲜订单-%s"%order.order_id
+        subject = "天天生鲜订单-%s" % order.order_id
         total_pay = order.total_price + order.transit_price
 
-        #电脑网站支付，需要跳转到https: // openapi.alipay.com / gateway.do? + order_string
+        # 电脑网站支付，需要跳转到https: // openapi.alipay.com / gateway.do? + order_string
         order_string = alipay.api_alipay_trade_page_pay(
             out_trade_no=order_id,
             total_amount=str(total_pay),
@@ -433,3 +430,76 @@ class OrderPayView(View):
 
         pay_url = 'https://openapi.alipaydev.com/gateway.do?' + order_string
         return JsonResponse({'res': 3, 'pay_url': pay_url})
+
+
+class CheckPayView(View):
+    '''查看订单支付的结果'''
+
+    def post(self, request):
+        '''查询支付结果'''
+        # 用户是否登录
+        user = request.user
+        if not user.is_authenticated():
+            return JsonResponse({'res': 0, 'errmsg': '用户未登录'})
+
+        # 接收参数
+        order_id = request.POST.get('order_id')
+
+        # 校验参数
+        if not order_id:
+            return JsonResponse({'res': 1, 'errmsg': '无效的订单id'})
+
+        try:
+            print('order_id:%s' % order_id)
+            order = OrderInfo.objects.get(order_id=order_id,
+                                          user=user,
+                                          pay_method=3,
+                                          order_status=1)
+        except OrderInfo.DoesNotExist:
+            return JsonResponse({'res': 2, 'errmsg': '订单错误'})
+
+        # 业务处理:使用python sdk调用支付宝的支付接口
+
+        # 初始化
+
+
+        app_private_key_string = os.path.join(settings.BASE_DIR, 'order/app_private_key.pem')
+        alipay_public_key_string = os.path.join(settings.BASE_DIR, 'order/alipay_public_key.pem')
+
+        alipay = AliPay(
+            appid="2016091900544820",
+            app_notify_url=None,  # 默认回调url
+            app_private_key_path=app_private_key_string,
+            alipay_public_key_path=alipay_public_key_string,  # 支付宝的公钥，验证支付宝回传消息使用，不是你自己的公钥,
+            sign_type="RSA2",  # RSA 或者 RSA2
+            debug=True  # 默认False
+        )
+
+        # 调用支付宝的交易查询接口
+        while True:
+            response = alipay.api_alipay_trade_query(order_id)
+
+            code = response.get('code')
+
+            print('code:%s'%code)
+
+            if code == '10000' and response.get('trade_status') == 'TRADE_SUCCESS':
+                # 支付成功
+                # 获取支付宝交易号
+                trade_no = response.get('trade_no')
+                # 更新订单状态
+                order.trade_no = trade_no
+                order.order_status = 4  # 待评价
+                order.save()
+                # 返回结果
+                return JsonResponse({'res': 3, 'message': '支付成功'})
+            elif code == '40004' or (code == '10000' and response.get('trade_status') == 'WAIT_BUYER_PAY'):
+                # 等待买家付款
+                # 业务处理失败，可能一会就会成功
+                import time
+                print('休眠5秒后，再次查询订单状态...')
+                time.sleep(5)
+                continue
+            else:
+                # 支付出错
+                return JsonResponse({'res': 4, 'errmsg': '支付失败'})
