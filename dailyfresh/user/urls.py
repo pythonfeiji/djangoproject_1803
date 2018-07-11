@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from user import views
-from django.contrib.auth.decorators import login_required
 
 
 urlpatterns = [
@@ -10,7 +9,7 @@ urlpatterns = [
     url(r'^logout$', views.LogoutView.as_view(), name='logout'), # 注销登录
 
     url(r'^$', views.UserInfoView.as_view(), name='user'), # 用户中心-信息页
-    url(r'^order$', views.UserOrderView.as_view(), name='order'), # 用户中心-订单页
+    # url(r'^order$', views.UserOrderView.as_view(), name='order'), # 用户中心-订单页
+    url(r'^order/(?P<page>\d+)$', views.UserOrderView.as_view(), name='order'), # 用户中心-订单页
     url(r'^address$', views.UserAddressView.as_view(), name='address'), # 用户中心-地址页
-
 ]
